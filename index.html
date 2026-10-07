@@ -1,143 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free AI Background Remover - 100% Automatic & HD</title>
-<meta name="description" content="Remove image background 100% free, automatic and HD. No upload to server, private and fast.">
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');body{font-family:'Inter',sans-serif}</style>
+<title>All in One Image Editor - Bg Remover & Passport Photo</title>
+<style>
+body{font-family:sans-serif;background:#f0f2f5;text-align:center;padding:15px}
+.box{background:#fff;max-width:520px;margin:auto;padding:20px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.1)}
+button{padding:10px 18px;border:none;border-radius:8px;background:#007bff;color:#fff;margin:5px;cursor:pointer}
+#preview{max-width:100%;margin-top:15px;border:1px solid #ddd;border-radius:10px}
+.controls{margin-top:15px;background:#f9f9f9;padding:12px;border-radius:10px;text-align:left}
+label{font-weight:bold;display:block;margin-top:12px}
+input[type="color"],input[type="range"]{width:100%}
+</style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-<!-- Ad Top -->
-<div id="ad-top" class="w-full bg-gray-100 text-center py-2 text-xs text-gray-400">Ad Space Top - Paste AdSense code here</div>
-
-<header class="bg-white shadow-sm sticky top-0 z-10">
-<div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-<h1 class="font-bold text-lg md:text-xl text-blue-600"><i class="fa-solid fa-wand-magic-sparkles"></i> AI BG Remover</h1>
-<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">100% Free & Private</span>
+<body>
+<div class="box">
+<h2>All in One Image Editor</h2>
+<p>بیک گراؤنڈ ریموو + کلر چینج + بلر + پاسپورٹ فوٹو</p>
+<input type="file" id="upload" accept="image/*">
+<div id="loading" style="display:none;color:red;font-weight:bold;margin-top:10px;">پروسیسنگ ہو رہی ہے...</div>
+<img id="preview" style="display:none;">
+<canvas id="canvas" style="display:none;"></canvas>
+<div id="controls" class="controls" style="display:none;">
+<label>بیک گراؤنڈ ریموو کریں:</label>
+<button onclick="removeBg()">بیک گراؤنڈ ہٹائیں</button>
+<label>بیک گراؤنڈ کلر بدلیں:</label>
+<div>
+<button style="background:white;color:black;border:1px solid #000" onclick="changeBg('white')">سفید</button>
+<button style="background:black" onclick="changeBg('black')">کالا</button>
+<button style="background:blue" onclick="changeBg('#0b57d0')">نیلا</button>
+<button style="background:red" onclick="changeBg('red')">لال</button>
+<button style="background:#00a884" onclick="changeBg('transparent')">ٹرانسپیرنٹ</button>
 </div>
-</header>
-
-<main class="max-w-5xl mx-auto px-4 py-6">
-<div class="text-center mb-6">
-<h2 class="text-3xl md:text-4xl font-bold text-gray-900">Free AI Background Remover</h2>
-<p class="text-gray-600 mt-2">Upload any image and remove background in 3 seconds. HD quality.</p>
-</div>
-
-<div id="dropZone" class="bg-white border-2 border-dashed border-blue-300 rounded-2xl p-8 text-center cursor-pointer hover:bg-blue-50 transition">
-<i class="fa-solid fa-cloud-arrow-up text-4xl text-blue-500 mb-3"></i>
-<p class="font-semibold text-gray-800">Drag & Drop Image Here</p>
-<p class="text-sm text-gray-500 mb-4">or</p>
-<label class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold cursor-pointer hover:bg-blue-700">
-<i class="fa-solid fa-upload mr-2"></i>Upload Image
-<input type="file" id="fileInput" accept="image/*" hidden>
-</label>
-<p class="text-xs text-gray-400 mt-3">JPG, PNG, WEBP - Max 10MB</p>
-<div class="mt-4">
-<button id="sampleBtn" class="text-sm text-blue-600 underline">Try Sample Image</button>
+<input type="color" id="customColor" onchange="changeBg(this.value)">
+<label>بیک گراؤنڈ بلر:</label>
+<input type="range" id="blur" min="0" max="20" value="0" oninput="redraw()">
+<label>تصویر کا سائز:</label>
+<input type="range" id="zoom" min="20" max="200" value="100" oninput="redraw()">
+<br><br>
+<button style="background:#28a745;width:100%" onclick="download()">ڈاؤن لوڈ کریں</button>
 </div>
 </div>
-
-<div id="processing" class="hidden text-center py-10">
-<div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
-<p class="mt-4 font-semibold text-gray-800">AI is removing background...</p>
-<p class="text-sm text-gray-500">Your image never leaves your device. Processing in browser.</p>
-</div>
-
-<div id="resultArea" class="hidden grid md:grid-cols-2 gap-6 mt-6">
-<div class="bg-white rounded-xl p-4 shadow">
-<p class="font-semibold text-sm mb-2">Original</p>
-<img id="originalPreview" class="w-full rounded-lg max-h-80 object-contain bg-gray-100">
-</div>
-<div class="bg-white rounded-xl p-4 shadow border border-green-200">
-<p class="font-semibold text-sm mb-2">Background Removed <span class="text-green-600">✓</span></p>
-<div class="bg-[url('https://upload.wikimedia.org/wikipedia/commons/5/5b/Checkerboard_pattern.svg')] rounded-lg">
-<img id="resultPreview" class="w-full rounded-lg max-h-80 object-contain">
-</div>
-<button id="downloadBtn" class="w-full mt-4 bg-green-600 text-white py-3 rounded-full font-bold hover:bg-green-700"><i class="fa-solid fa-download mr-2"></i>Download HD PNG</button>
-<button id="newImageBtn" class="w-full mt-2 text-sm text-gray-600 py-2">+ New Image</button>
-</div>
-</div>
-
-</main>
-
-<div id="ad-bottom" class="w-full bg-gray-100 text-center py-10 mt-8 text-xs text-gray-400">Ad Space Bottom - Paste AdSense code here</div>
-
-<footer class="text-center py-6 text-xs text-gray-500">
-<p>Made for Creators in Pakistan - 100% Free & Private. Your images never leave your device.</p>
-<p class="mt-1">© 2026 AI BG Remover | Haripur, KPK</p>
-</footer>
-
-<script type="importmap">
-{
-"imports": {
-"@imgly/background-removal": "https://esm.sh/@imgly/background-removal@1.4.5"
-}
-}
-</script>
-
 <script type="module">
-import { removeBackground } from "@imgly/background-removal";
-
-const fileInput = document.getElementById('fileInput');
-const dropZone = document.getElementById('dropZone');
-const processing = document.getElementById('processing');
-const resultArea = document.getElementById('resultArea');
-const originalPreview = document.getElementById('originalPreview');
-const resultPreview = document.getElementById('resultPreview');
-const downloadBtn = document.getElementById('downloadBtn');
-let resultBlob = null;
-
-async function processFile(file){
-if(!file.type.startsWith('image/')){alert('Please upload an image');return;}
-originalPreview.src = URL.createObjectURL(file);
-dropZone.classList.add('hidden');
-processing.classList.remove('hidden');
-resultArea.classList.add('hidden');
-try{
-const blob = await removeBackground(file);
-resultBlob = blob;
-resultPreview.src = URL.createObjectURL(blob);
-processing.classList.add('hidden');
-resultArea.classList.remove('hidden');
-}catch(e){
-alert('Error: '+e.message);
-processing.classList.add('hidden');
-dropZone.classList.remove('hidden');
+import {removeBackground} from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm';
+let orig=null, noBg=null, bg='transparent';
+const canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d');
+const preview=document.getElementById('preview');
+document.getElementById('upload').addEventListener('change',e=>{
+ const f=e.target.files[0]; if(!f) return;
+ const r=new FileReader(); r.onload=ev=>{
+  orig=new Image(); orig.onload=()=>{canvas.width=orig.width; canvas.height=orig.height; ctx.drawImage(orig,0,0); preview.src=canvas.toDataURL(); preview.style.display='block'; document.getElementById('controls').style.display='block';}; orig.src=ev.target.result;
+ }; r.readAsDataURL(f);
+});
+window.removeBg=async()=>{
+ document.getElementById('loading').style.display='block';
+ const blob=await removeBackground(canvas.toDataURL());
+ const url=URL.createObjectURL(blob);
+ noBg=new Image(); noBg.onload=()=>{ canvas.width=noBg.width; canvas.height=noBg.height; redraw(); document.getElementById('loading').style.display='none';}; noBg.src=url;
 }
+window.changeBg=c=>{bg=c; redraw();}
+window.redraw=()=>{
+ if(!orig) return;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ if(bg!=='transparent'){ctx.fillStyle=bg; ctx.fillRect(0,0,canvas.width,canvas.height);}
+ const b=document.getElementById('blur').value;
+ if(b>0){ctx.filter=`blur(${b}px)`; ctx.drawImage(orig,0,0); ctx.filter='none'; if(noBg) ctx.drawImage(noBg,0,0);} else { if(noBg) ctx.drawImage(noBg,0,0); else ctx.drawImage(orig,0,0); }
+ preview.src=canvas.toDataURL();
+ const z=document.getElementById('zoom').value; preview.style.width=z+'%';
 }
-
-fileInput.addEventListener('change', e => { if(e.target.files[0]) processFile(e.target.files[0]); });
-
-dropZone.addEventListener('dragover', e=>{e.preventDefault(); dropZone.classList.add('bg-blue-50')});
-dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('bg-blue-50'));
-dropZone.addEventListener('drop', e=>{ e.preventDefault(); dropZone.classList.remove('bg-blue-50'); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
-
-dropZone.addEventListener('click', ()=>fileInput.click());
-
-downloadBtn.addEventListener('click', ()=>{
-if(!resultBlob) return;
-const a = document.createElement('a');
-a.href = URL.createObjectURL(resultBlob);
-a.download = 'bg-removed-hd.png';
-a.click();
-});
-
-document.getElementById('newImageBtn').addEventListener('click', ()=>{
-resultArea.classList.add('hidden');
-dropZone.classList.remove('hidden');
-fileInput.value='';
-});
-
-document.getElementById('sampleBtn').addEventListener('click', async (e)=>{
-e.stopPropagation();
-const res = await fetch('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500');
-const blob = await res.blob();
-const file = new File([blob], 'sample.jpg', {type:'image/jpeg'});
-processFile(file);
-});
+window.download=()=>{const a=document.createElement('a'); a.download='edited-image.png'; a.href=canvas.toDataURL(); a.click();}
 </script>
 </body>
 </html>
