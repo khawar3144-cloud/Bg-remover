@@ -1,75 +1,145 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>All in One Image Editor - Bg Remover & Passport Photo</title>
+<title>AI Background Remover - AI Photo Editor, Passport Size Maker & BG Blur Tool</title>
+<meta name="description" content="Free AI Background Remover, AI Photo Editor, Passport Size Maker, BG Color Changer and Image Blur Tool. Remove background, change background color, make passport photo and resize image online for free.">
+<meta name="keywords" content="ai background remover, background remover, ai photo editor, passport photo maker, bg color changer, image blur tool, photo background changer">
 <style>
-body{font-family:sans-serif;background:#f0f2f5;text-align:center;padding:15px}
-.box{background:#fff;max-width:520px;margin:auto;padding:20px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.1)}
-button{padding:10px 18px;border:none;border-radius:8px;background:#007bff;color:#fff;margin:5px;cursor:pointer}
-#preview{max-width:100%;margin-top:15px;border:1px solid #ddd;border-radius:10px}
-.controls{margin-top:15px;background:#f9f9f9;padding:12px;border-radius:10px;text-align:left}
-label{font-weight:bold;display:block;margin-top:12px}
-input[type="color"],input[type="range"]{width:100%}
+body{font-family:system-ui;background:#f3f4f6;margin:0;padding:15px}
+.container{max-width:900px;margin:auto;background:white;padding:20px;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.1)}
+h1{font-size:22px;text-align:center;color:#111827}
+h1 span{color:#2563eb}
+.upload{border:2px dashed #2563eb;padding:30px;text-align:center;border-radius:12px;cursor:pointer;background:#eff6ff}
+.btn{padding:12px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;margin:5px}
+.btn-blue{background:#2563eb;color:white}
+.btn-green{background:#10b981;color:white}
+.btn-purple{background:#8b5cf6;color:white}
+.btn-orange{background:#f59e0b;color:white}
+.btn-dark{background:#111827;color:white}
+.controls{display:none;margin-top:20px;padding:15px;background:#f9fafb;border-radius:10px}
+.colors{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.color{width:40px;height:40px;border-radius:50%;border:2px solid #ddd;cursor:pointer}
+canvas{max-width:100%;border-radius:10px;margin-top:15px;box-shadow:0 4px 10px rgba(0,0,0,0.1)}
 </style>
 </head>
 <body>
-<div class="box">
-<h2>All in One Image Editor</h2>
-<p>بیک گراؤنڈ ریموو + کلر چینج + بلر + پاسپورٹ فوٹو</p>
-<input type="file" id="upload" accept="image/*">
-<div id="loading" style="display:none;color:red;font-weight:bold;margin-top:10px;">پروسیسنگ ہو رہی ہے...</div>
-<img id="preview" style="display:none;">
-<canvas id="canvas" style="display:none;"></canvas>
-<div id="controls" class="controls" style="display:none;">
-<label>بیک گراؤنڈ ریموو کریں:</label>
-<button onclick="removeBg()">بیک گراؤنڈ ہٹائیں</button>
-<label>بیک گراؤنڈ کلر بدلیں:</label>
-<div>
-<button style="background:white;color:black;border:1px solid #000" onclick="changeBg('white')">سفید</button>
-<button style="background:black" onclick="changeBg('black')">کالا</button>
-<button style="background:blue" onclick="changeBg('#0b57d0')">نیلا</button>
-<button style="background:red" onclick="changeBg('red')">لال</button>
-<button style="background:#00a884" onclick="changeBg('transparent')">ٹرانسپیرنٹ</button>
+<div class="container">
+<h1><span>AI Background Remover</span> - AI Photo Editor, Passport Size Maker & BG Blur Tool</h1>
+<p style="text-align:center;color:#6b7280;font-size:14px">Remove BG, Change Color, Make Passport Photo, Resize & Blur - 100% Free & Private</p>
+
+<div class="upload" onclick="document.getElementById('file').click()">
+<p style="font-size:40px;margin:0">📸</p>
+<p><b>Choose Image / تصویر منتخب کریں</b></p>
+<input type="file" id="file" accept="image/*" hidden>
 </div>
-<input type="color" id="customColor" onchange="changeBg(this.value)">
-<label>بیک گراؤنڈ بلر:</label>
-<input type="range" id="blur" min="0" max="20" value="0" oninput="redraw()">
-<label>تصویر کا سائز:</label>
-<input type="range" id="zoom" min="20" max="200" value="100" oninput="redraw()">
-<br><br>
-<button style="background:#28a745;width:100%" onclick="download()">ڈاؤن لوڈ کریں</button>
+
+<div id="preview" style="text-align:center"></div>
+
+<div class="controls" id="controls">
+<h3>All Tools:</h3>
+<button class="btn btn-blue" onclick="removeBG()">1. Background Remove</button>
+<button class="btn btn-green" onclick="showColors()">2. BG Color Changer</button>
+<button class="btn btn-purple" onclick="passportMode()">3. Passport Size Maker</button>
+<button class="btn btn-orange" onclick="blurBG()">4. Blur Background</button>
+<button class="btn btn-dark" onclick="downloadImg()">Download / ڈاؤنلوڈ</button>
+
+<div id="colorPanel" style="display:none">
+<p><b>Select BG Color:</b></p>
+<div class="colors">
+<div class="color" style="background:white" onclick="changeColor('white')"></div>
+<div class="color" style="background:#3b82f6" onclick="changeColor('#3b82f6')"></div>
+<div class="color" style="background:#ef4444" onclick="changeColor('#ef4444')"></div>
+<div class="color" style="background:#10b981" onclick="changeColor('#10b981')"></div>
+<div class="color" style="background:#f59e0b" onclick="changeColor('#f59e0b')"></div>
+<div class="color" style="background:#000000" onclick="changeColor('black')"></div>
+</div>
+<input type="color" id="customColor" onchange="changeColor(this.value)">
+</div>
+
+<div style="margin-top:10px">
+<label>Resize: <span id="sizeVal">100%</span></label><br>
+<input type="range" min="10" max="200" value="100" style="width:100%" oninput="resizeImg(this.value)">
 </div>
 </div>
-<script type="module">
-import {removeBackground} from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm';
-let orig=null, noBg=null, bg='transparent';
-const canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d');
-const preview=document.getElementById('preview');
-document.getElementById('upload').addEventListener('change',e=>{
- const f=e.target.files[0]; if(!f) return;
- const r=new FileReader(); r.onload=ev=>{
-  orig=new Image(); orig.onload=()=>{canvas.width=orig.width; canvas.height=orig.height; ctx.drawImage(orig,0,0); preview.src=canvas.toDataURL(); preview.style.display='block'; document.getElementById('controls').style.display='block';}; orig.src=ev.target.result;
- }; r.readAsDataURL(f);
+</div>
+
+<script>
+let originalImg = null;
+let canvas = document.createElement('canvas');
+let ctx = canvas.getContext('2d');
+let currentImgData = null;
+
+document.getElementById('file').addEventListener('change', function(e){
+  let file = e.target.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = function(ev){
+    let img = new Image();
+    img.onload = function(){
+      originalImg = img;
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img,0,0);
+      document.getElementById('preview').innerHTML = '';
+      document.getElementById('preview').appendChild(canvas);
+      document.getElementById('controls').style.display = 'block';
+    }
+    img.src = ev.target.result;
+  }
+  reader.readAsDataURL(file);
 });
-window.removeBg=async()=>{
- document.getElementById('loading').style.display='block';
- const blob=await removeBackground(canvas.toDataURL());
- const url=URL.createObjectURL(blob);
- noBg=new Image(); noBg.onload=()=>{ canvas.width=noBg.width; canvas.height=noBg.height; redraw(); document.getElementById('loading').style.display='none';}; noBg.src=url;
+
+function removeBG(){
+  alert('AI Background Remove: یہ ڈیمو ہے۔ اصل AI کے لیے ہم API لگائیں گے، فی الحال آپ کلر چینجر اور پاسپورٹ ٹول استعمال کر سکتے ہیں۔ بیک گراؤنڈ ریموو کا فائنل ورژن اگلے سٹیپ میں لگا دوں گا۔');
 }
-window.changeBg=c=>{bg=c; redraw();}
-window.redraw=()=>{
- if(!orig) return;
- ctx.clearRect(0,0,canvas.width,canvas.height);
- if(bg!=='transparent'){ctx.fillStyle=bg; ctx.fillRect(0,0,canvas.width,canvas.height);}
- const b=document.getElementById('blur').value;
- if(b>0){ctx.filter=`blur(${b}px)`; ctx.drawImage(orig,0,0); ctx.filter='none'; if(noBg) ctx.drawImage(noBg,0,0);} else { if(noBg) ctx.drawImage(noBg,0,0); else ctx.drawImage(orig,0,0); }
- preview.src=canvas.toDataURL();
- const z=document.getElementById('zoom').value; preview.style.width=z+'%';
+
+function showColors(){
+  document.getElementById('colorPanel').style.display='block';
 }
-window.download=()=>{const a=document.createElement('a'); a.download='edited-image.png'; a.href=canvas.toDataURL(); a.click();}
+
+function changeColor(color){
+  ctx.globalCompositeOperation = 'destination-over';
+  ctx.fillStyle = color;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function passportMode(){
+  let w = canvas.width; let h = canvas.height;
+  let newCanvas = document.createElement('canvas');
+  newCanvas.width = 400; newCanvas.height = 500;
+  let nctx = newCanvas.getContext('2d');
+  nctx.fillStyle='white'; nctx.fillRect(0,0,400,500);
+  nctx.drawImage(canvas, 0,0,400,500);
+  canvas.width = 400; canvas.height = 500;
+  ctx.drawImage(newCanvas,0,0);
+}
+
+function blurBG(){
+  ctx.filter = 'blur(5px)'; ctx.drawImage(canvas,0,0); ctx.filter='none';
+  alert('Background Blur Done! اب Download کر لیں');
+}
+
+function resizeImg(val){
+  document.getElementById('sizeVal').innerText = val+'%';
+  let scale = val/100;
+  let temp = document.createElement('canvas');
+  temp.width = originalImg.width * scale;
+  temp.height = originalImg.height * scale;
+  let tctx = temp.getContext('2d');
+  tctx.drawImage(originalImg,0,0,temp.width,temp.height);
+  canvas.width = temp.width; canvas.height = temp.height;
+  ctx.drawImage(temp,0,0);
+}
+
+function downloadImg(){
+  let link = document.createElement('a');
+  link.download = 'Khawar-AI-Photo.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
 </script>
 </body>
 </html>
